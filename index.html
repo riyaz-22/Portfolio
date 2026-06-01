@@ -270,6 +270,14 @@
   .social-link:hover .social-arrow { opacity: 1; }
   .social-platform { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.4rem; color: var(--text); letter-spacing: -0.02em; transition: color 0.2s; }
   .social-link:hover .social-platform { color: var(--accent); }
+  .social-main { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .social-copy { min-width: 0; }
+  .social-logo-wrap { width: 36px; height: 36px; border: 1px solid var(--border); background: var(--bg2); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--muted); transition: color 0.2s, border-color 0.2s, background 0.2s, transform 0.2s; }
+  .social-logo-wrap svg { width: 18px; height: 18px; display: block; fill: currentColor; }
+  .social-logo-fallback { display: none; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800; color: var(--accent); letter-spacing: -0.02em; }
+  .social-logo-wrap.logo-failed svg { display: none; }
+  .social-logo-wrap.logo-failed .social-logo-fallback { display: inline-flex; }
+  .social-link:hover .social-logo-wrap { color: var(--accent); border-color: var(--accent); background: rgba(216,90,48,0.07); transform: translateX(2px); }
 
   /* FOOTER */
   footer { display: flex; align-items: center; justify-content: space-between; padding: 2rem 4rem; border-top: 1px solid var(--border); background: var(--bg); }
@@ -611,10 +619,10 @@ buildTicker();
       <div style="margin-top:3rem"><a href="https://riyaz-22.github.io/Portfolio/Assets/Riyaz_Ahmad_Resume.pdf" class="btn-primary" target="_blank">Download Resume ↓</a></div>
     </div>
     <div class="contact-social">
-      <a href="https://github.com/riyaz-22" target="_blank" class="social-link"><div><div class="social-platform">GitHub</div><div style="font-size:11px;color:var(--muted);margin-top:2px">@riyaz-22</div></div><span class="social-arrow">↗</span></a>
-      <a href="https://www.linkedin.com/in/riyazahmadj" target="_blank" class="social-link"><div><div class="social-platform">LinkedIn</div><div style="font-size:11px;color:var(--muted);margin-top:2px">in/riyazahmadj</div></div><span class="social-arrow">↗</span></a>
-      <a href="https://x.com/riyaz_builds" target="_blank" class="social-link"><div><div class="social-platform">𝕏 Twitter</div><div style="font-size:11px;color:var(--muted);margin-top:2px">@riyaz_builds</div></div><span class="social-arrow">↗</span></a>
-      <a href="https://www.instagram.com/riyaz_builds" target="_blank" class="social-link"><div><div class="social-platform">Instagram</div><div style="font-size:11px;color:var(--muted);margin-top:2px">@riyaz_builds</div></div><span class="social-arrow">↗</span></a>
+      <a href="https://github.com/riyaz-22" target="_blank" class="social-link"><div class="social-copy"><div class="social-platform">GitHub</div><div style="font-size:11px;color:var(--muted);margin-top:2px">@riyaz-22</div></div><span class="social-arrow">↗</span></a>
+      <a href="https://www.linkedin.com/in/riyazahmadj" target="_blank" class="social-link"><div class="social-copy"><div class="social-platform">LinkedIn</div><div style="font-size:11px;color:var(--muted);margin-top:2px">in/riyazahmadj</div></div><span class="social-arrow">↗</span></a>
+      <a href="https://x.com/riyaz_builds" target="_blank" class="social-link"><div class="social-copy"><div class="social-platform">𝕏 | Twitter</div><div style="font-size:11px;color:var(--muted);margin-top:2px">@riyaz_builds</div></div><span class="social-arrow">↗</span></a>
+      <a href="https://www.instagram.com/riyaz_builds" target="_blank" class="social-link"><div class="social-copy"><div class="social-platform">Instagram</div><div style="font-size:11px;color:var(--muted);margin-top:2px">@riyaz_builds</div></div><span class="social-arrow">↗</span></a>
     </div>
   </div>
 </section>
@@ -776,6 +784,75 @@ panel.addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') { wrap.classList.remove('open'); trigger.setAttribute('aria-expanded','false'); }
 });
+
+
+// Contact social logos - automatically detected from each social-link href
+const SOCIAL_ICON_CONFIGS = [
+  { domains: ['github.com'], label: 'GitHub', fallback: 'GH', icon: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/github.svg' },
+  { domains: ['linkedin.com'], label: 'LinkedIn', fallback: 'IN', icon: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/linkedin.svg' },
+  { domains: ['x.com', 'twitter.com'], label: 'X', fallback: 'X', icon: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/x.svg' },
+  { domains: ['instagram.com'], label: 'Instagram', fallback: 'IG', icon: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/instagram.svg' }
+];
+
+function getSocialIconConfig(href) {
+  const url = href.toLowerCase();
+  return SOCIAL_ICON_CONFIGS.find(item => item.domains.some(domain => url.includes(domain)));
+}
+
+function showSocialFallback(wrap, fallback) {
+  wrap.classList.add('logo-failed');
+  wrap.innerHTML = `<span class="social-logo-fallback" aria-hidden="true">${fallback}</span>`;
+}
+
+async function injectSocialLogos() {
+  const links = document.querySelectorAll('.contact-social .social-link');
+
+  links.forEach(link => {
+    link.setAttribute('rel', 'noopener noreferrer');
+  });
+
+  await Promise.all([...links].map(async link => {
+    if (link.dataset.logoInjected === 'true') return;
+
+    const config = getSocialIconConfig(link.href || '');
+    const contentBlock = link.querySelector('.social-copy') || link.querySelector(':scope > div');
+    if (!config || !contentBlock) return;
+
+    const main = document.createElement('div');
+    main.className = 'social-main';
+
+    const logoWrap = document.createElement('span');
+    logoWrap.className = 'social-logo-wrap';
+    logoWrap.setAttribute('aria-hidden', 'true');
+    logoWrap.innerHTML = `<span class="social-logo-fallback" aria-hidden="true">${config.fallback}</span>`;
+
+    contentBlock.parentNode.insertBefore(main, contentBlock);
+    main.appendChild(logoWrap);
+    main.appendChild(contentBlock);
+    link.dataset.logoInjected = 'true';
+
+    try {
+      const response = await fetch(config.icon);
+      if (!response.ok) throw new Error(`Logo fetch failed: ${config.label}`);
+      const svgText = await response.text();
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+      const svg = svgDoc.querySelector('svg');
+      if (!svg) throw new Error(`Invalid SVG: ${config.label}`);
+      svg.removeAttribute('width');
+      svg.removeAttribute('height');
+      svg.setAttribute('aria-hidden', 'true');
+      svg.setAttribute('focusable', 'false');
+      svg.querySelectorAll('[fill]').forEach(node => node.removeAttribute('fill'));
+      logoWrap.classList.remove('logo-failed');
+      logoWrap.replaceChildren(svg);
+    } catch (error) {
+      showSocialFallback(logoWrap, config.fallback);
+    }
+  }));
+}
+
+injectSocialLogos();
 </script>
 </body>
 </html>
