@@ -82,7 +82,17 @@
     flex-direction: column;
     z-index: 999;
     overflow: hidden;
+    max-height: calc(100vh - 90px);
   }
+  .theme-panel-scroll {
+    overflow-y: auto;
+    flex: 1;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+  .theme-panel-scroll::-webkit-scrollbar { width: 4px; }
+  .theme-panel-scroll::-webkit-scrollbar-track { background: transparent; }
+  .theme-panel-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
   .theme-dropdown-wrap.open .theme-panel { display: flex; }
   .theme-panel-header {
     padding: 10px 14px 8px;
@@ -323,7 +333,7 @@
       </button>
       <div class="theme-panel" id="themePanel" role="listbox">
         <div class="theme-panel-header">Choose a theme</div>
-
+        <div class="theme-panel-scroll">
         <div class="theme-group-label">☀ Light</div>
         <button class="theme-option active" data-palette="ivory-orange" role="option">
           <span class="opt-dot" style="background:#FAF7F2;border-color:#E8DDD0"><span style="position:absolute;top:0;left:50%;right:0;bottom:0;background:#D85A30"></span></span>
@@ -431,6 +441,7 @@
           <span class="theme-opt-name">Espresso Rose</span>
           <span class="theme-opt-tag">dark</span>
         </button>
+        </div><!-- /theme-panel-scroll -->
       </div>
     </div>
   </div>
