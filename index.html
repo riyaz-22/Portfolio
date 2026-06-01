@@ -257,23 +257,44 @@
     overflow: hidden;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
-    padding: 14px 0;
+    padding: 12px 0;
     background: var(--bg2);
   }
-  .ticker {
+  .ticker-track {
     display: flex; gap: 0;
-    animation: ticker 30s linear infinite;
     white-space: nowrap;
+    width: max-content;
+    animation: ticker 40s linear infinite;
   }
+  .ticker-track:hover { animation-play-state: paused; }
   @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  .ticker-item {
-    display: inline-flex; align-items: center; gap: 24px;
-    padding: 0 32px;
-    font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+  .ticker-skill {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 0 22px;
+    font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase;
     color: var(--muted);
     flex-shrink: 0;
+    transition: color 0.2s;
   }
-  .ticker-dot { color: var(--accent); font-size: 18px; line-height: 1; }
+  .ticker-skill:hover { color: var(--text); }
+  .ticker-skill img {
+    width: 18px; height: 18px; object-fit: contain;
+    opacity: 0.75; flex-shrink: 0;
+    transition: opacity 0.2s;
+  }
+  .ticker-skill:hover img { opacity: 1; }
+  .ticker-skill .fallback-icon {
+    width: 18px; height: 18px; border-radius: 4px;
+    background: var(--accent); opacity: 0.7;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; color: var(--bg);
+    flex-shrink: 0; letter-spacing: 0;
+  }
+  .ticker-sep {
+    display: inline-flex; align-items: center;
+    padding: 0 4px;
+    color: var(--accent); font-size: 14px; flex-shrink: 0;
+  }
 
   /* SECTIONS */
   section {
@@ -684,9 +705,42 @@
     .nav-links { display: none; }
     .hero-name { font-size: 3.5rem; }
   }
+
+  /* PALETTE SWITCHER */
+  #palette-bar {
+    display: flex; align-items: center; gap: 7px;
+    font-family: 'DM Mono', monospace;
+  }
+  #palette-bar .pb-label {
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin-right: 4px; white-space: nowrap;
+  }
+  .pb-swatch {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .pb-swatch:hover { transform: scale(1.25); }
+  .pb-swatch.active { border-color: var(--text) !important; transform: scale(1.15); }
+  .pb-swatch[title]::after {
+    content: attr(title);
+    position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: var(--bg);
+    font-size: 10px; white-space: nowrap;
+    padding: 4px 8px; border-radius: 4px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 200;
+  }
+  .pb-swatch:hover::after { opacity: 1; }
+  .pb-divider { width: 1px; height: 14px; background: var(--border2); margin: 0 2px; }
 </style>
 </head>
 <body>
+
 
 <!-- NAV -->
 <nav id="nav">
@@ -697,9 +751,23 @@
     <li><a href="#experience">Experience</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
-  <div class="nav-status">
-    <div class="status-dot"></div>
-    Open to Work
+  <div style="display:flex;align-items:center;gap:1.5rem;">
+    <div class="nav-status">
+      <div class="status-dot"></div>
+      Open to Work
+    </div>
+    <div id="palette-bar">
+      <span class="pb-label">Theme</span>
+      <div class="pb-swatch active" title="Warm Ivory + Burnt Orange" style="background:#D85A30;" onclick="applyPalette('ivory-orange')"></div>
+      <div class="pb-swatch" title="Deep Navy + Electric Blue" style="background:#378ADD;" onclick="applyPalette('navy-blue')"></div>
+      <div class="pb-swatch" title="Off-white + Violet Purple" style="background:#7F77DD;" onclick="applyPalette('white-purple')"></div>
+      <div class="pb-swatch" title="Charcoal + Warm Gold" style="background:#EF9F27;" onclick="applyPalette('charcoal-gold')"></div>
+      <div class="pb-swatch" title="Pure Black + Lime Green" style="background:#c8f55a; border:1px solid rgba(0,0,0,0.15);" onclick="applyPalette('black-lime')"></div>
+      <div class="pb-swatch" title="Slate + Coral Pink" style="background:#D4537E;" onclick="applyPalette('slate-pink')"></div>
+      <div class="pb-swatch" title="Forest + Mint Green" style="background:#1D9E75;" onclick="applyPalette('forest-mint')"></div>
+      <div class="pb-divider"></div>
+      <div class="pb-swatch" style="background:conic-gradient(#FAF7F2 180deg,#141210 180deg); border:1px solid rgba(128,128,128,0.3);" title="Light / Dark toggle" onclick="toggleDarkLight()"></div>
+    </div>
   </div>
 </nav>
 
@@ -749,11 +817,90 @@
 
 <!-- TICKER -->
 <div class="ticker-wrap">
-  <div class="ticker">
-    <div class="ticker-item"><span class="ticker-dot">✦</span> React.js <span class="ticker-dot">✦</span> TypeScript <span class="ticker-dot">✦</span> React Native <span class="ticker-dot">✦</span> Redux <span class="ticker-dot">✦</span> Node.js <span class="ticker-dot">✦</span> Firebase <span class="ticker-dot">✦</span> Tailwind CSS <span class="ticker-dot">✦</span> MongoDB <span class="ticker-dot">✦</span> REST APIs <span class="ticker-dot">✦</span> Express.js <span class="ticker-dot">✦</span> JWT Auth <span class="ticker-dot">✦</span> Jest <span class="ticker-dot">✦</span> Vite <span class="ticker-dot">✦</span> GitHub Actions <span class="ticker-dot">✦</span></div>
-    <div class="ticker-item"><span class="ticker-dot">✦</span> React.js <span class="ticker-dot">✦</span> TypeScript <span class="ticker-dot">✦</span> React Native <span class="ticker-dot">✦</span> Redux <span class="ticker-dot">✦</span> Node.js <span class="ticker-dot">✦</span> Firebase <span class="ticker-dot">✦</span> Tailwind CSS <span class="ticker-dot">✦</span> MongoDB <span class="ticker-dot">✦</span> REST APIs <span class="ticker-dot">✦</span> Express.js <span class="ticker-dot">✦</span> JWT Auth <span class="ticker-dot">✦</span> Jest <span class="ticker-dot">✦</span> Vite <span class="ticker-dot">✦</span> GitHub Actions <span class="ticker-dot">✦</span></div>
-  </div>
+  <div class="ticker-track" id="ticker-track"></div>
 </div>
+
+<script>
+// ── SKILLS LIST ── Add or remove skills here. Icons are fetched automatically.
+const SKILLS = [
+  "React.js", "TypeScript", "React Native", "Redux", "Node.js",
+  "Firebase", "Tailwind CSS", "MongoDB", "REST APIs", "Express.js",
+  "JWT Auth", "Jest", "Vite", "GitHub Actions", "HTML5", "CSS3",
+  "SCSS", "Bootstrap", "Git", "Postman"
+];
+
+// Map skill names → devicons slug (https://devicons.github.io/devicon/)
+const ICON_MAP = {
+  "react.js":       "react/react-original",
+  "react native":   "react/react-original",
+  "typescript":     "typescript/typescript-original",
+  "redux":          "redux/redux-original",
+  "node.js":        "nodejs/nodejs-original",
+  "firebase":       "firebase/firebase-plain",
+  "tailwind css":   "tailwindcss/tailwindcss-original",
+  "mongodb":        "mongodb/mongodb-original",
+  "express.js":     "express/express-original",
+  "jest":           "jest/jest-plain",
+  "vite":           "vitejs/vitejs-original",
+  "github actions": "github/github-original",
+  "html5":          "html5/html5-original",
+  "css3":           "css3/css3-original",
+  "scss":           "sass/sass-original",
+  "bootstrap":      "bootstrap/bootstrap-original",
+  "git":            "git/git-original",
+  "postman":        "postman/postman-original",
+  "javascript":     "javascript/javascript-original",
+  "python":         "python/python-original",
+  "docker":         "docker/docker-original",
+  "kubernetes":     "kubernetes/kubernetes-plain",
+  "graphql":        "graphql/graphql-plain",
+  "postgresql":     "postgresql/postgresql-original",
+  "mysql":          "mysql/mysql-original",
+  "redis":          "redis/redis-original",
+  "aws":            "amazonwebservices/amazonwebservices-original",
+  "vue.js":         "vuejs/vuejs-original",
+  "angular":        "angularjs/angularjs-original",
+  "nextjs":         "nextjs/nextjs-original",
+  "svelte":         "svelte/svelte-original",
+  "figma":          "figma/figma-original",
+  "linux":          "linux/linux-original",
+  "nginx":          "nginx/nginx-original",
+  "vercel":         "vercel/vercel-original",
+};
+
+function getIconUrl(name) {
+  const key = name.toLowerCase();
+  const slug = ICON_MAP[key];
+  if (slug) return `https://cdn.jsdelivr.net/gh/devicons/devicon/icons/${slug}.svg`;
+  return null;
+}
+
+function buildTicker() {
+  const track = document.getElementById('ticker-track');
+  if (!track) return;
+
+  // Build one set, duplicate for seamless loop
+  function buildSet() {
+    return SKILLS.map((skill, i) => {
+      const iconUrl = getIconUrl(skill);
+      const iconHtml = iconUrl
+        ? `<img src="${iconUrl}" alt="${skill}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : '';
+      const abbr = skill.replace(/[^A-Za-z]/g,'').substring(0,2).toUpperCase();
+      const fallbackStyle = iconUrl ? 'display:none' : 'display:flex';
+      return `<span class="ticker-skill">
+        ${iconHtml}<span class="fallback-icon" style="${fallbackStyle}">${abbr}</span>
+        ${skill}
+      </span><span class="ticker-sep">✦</span>`;
+    }).join('');
+  }
+
+  const set = buildSet();
+  track.innerHTML = set + set; // duplicate for infinite loop
+}
+
+buildTicker();
+</script>
 
 <!-- SKILLS -->
 <section id="skills">
@@ -1105,6 +1252,85 @@
     span.style.transition = `opacity 0.8s ${i * 0.15}s ease, transform 0.8s ${i * 0.15}s cubic-bezier(.16,1,.3,1)`;
     setTimeout(() => { span.style.opacity = '1'; span.style.transform = 'translateY(0)'; }, 100);
   });
+</script>
+<script>
+const palettes = {
+  'ivory-orange': {
+    bg:'#FAF7F2', bg2:'#F0E8DC', bg3:'#E8DDD0',
+    border:'rgba(26,24,20,0.09)', border2:'rgba(26,24,20,0.16)',
+    text:'#1a1814', muted:'#8a7f72',
+    accent:'#D85A30', accent2:'#993C1D', accent3:'#BA7517', red:'#A32D2D',
+    navBg:'rgba(250,247,242,0.88)', btnText:'#FAF7F2', shadow:'rgba(216,90,48,0.28)'
+  },
+  'navy-blue': {
+    bg:'#080e1a', bg2:'#0e1929', bg3:'#152238',
+    border:'rgba(232,238,248,0.08)', border2:'rgba(232,238,248,0.14)',
+    text:'#e8eef8', muted:'#5a7fa8',
+    accent:'#378ADD', accent2:'#185FA5', accent3:'#85B7EB', red:'#E24B4A',
+    navBg:'rgba(8,14,26,0.88)', btnText:'#e8eef8', shadow:'rgba(55,138,221,0.35)'
+  },
+  'white-purple': {
+    bg:'#F5F3F0', bg2:'#EDE9E4', bg3:'#E3DDD7',
+    border:'rgba(28,26,24,0.09)', border2:'rgba(28,26,24,0.16)',
+    text:'#1c1a18', muted:'#8a8078',
+    accent:'#7F77DD', accent2:'#534AB7', accent3:'#AFA9EC', red:'#D4537E',
+    navBg:'rgba(245,243,240,0.88)', btnText:'#F5F3F0', shadow:'rgba(127,119,221,0.3)'
+  },
+  'charcoal-gold': {
+    bg:'#141210', bg2:'#1e1b18', bg3:'#272320',
+    border:'rgba(242,237,232,0.08)', border2:'rgba(242,237,232,0.14)',
+    text:'#f2ede8', muted:'#7a7068',
+    accent:'#EF9F27', accent2:'#BA7517', accent3:'#FAC775', red:'#E24B4A',
+    navBg:'rgba(20,18,16,0.88)', btnText:'#141210', shadow:'rgba(239,159,39,0.35)'
+  },
+  'black-lime': {
+    bg:'#0a0a0a', bg2:'#111111', bg3:'#1a1a1a',
+    border:'rgba(255,255,255,0.07)', border2:'rgba(255,255,255,0.12)',
+    text:'#f0ede8', muted:'#888880',
+    accent:'#c8f55a', accent2:'#5af5c8', accent3:'#f5c85a', red:'#f55a5a',
+    navBg:'rgba(10,10,10,0.85)', btnText:'#0a0a0a', shadow:'rgba(200,245,90,0.3)'
+  },
+  'slate-pink': {
+    bg:'#F7F5F8', bg2:'#EDE8F2', bg3:'#E2DAEA',
+    border:'rgba(20,16,28,0.09)', border2:'rgba(20,16,28,0.16)',
+    text:'#14101c', muted:'#8a7898',
+    accent:'#D4537E', accent2:'#993556', accent3:'#ED93B1', red:'#A32D2D',
+    navBg:'rgba(247,245,248,0.88)', btnText:'#F7F5F8', shadow:'rgba(212,83,126,0.3)'
+  },
+  'forest-mint': {
+    bg:'#F0F7F4', bg2:'#DCF0E8', bg3:'#C8E8D8',
+    border:'rgba(10,40,26,0.09)', border2:'rgba(10,40,26,0.16)',
+    text:'#0a281a', muted:'#4a7a60',
+    accent:'#1D9E75', accent2:'#0F6E56', accent3:'#5DCAA5', red:'#D85A30',
+    navBg:'rgba(240,247,244,0.88)', btnText:'#F0F7F4', shadow:'rgba(29,158,117,0.3)'
+  }
+};
+
+let darkMode = false;
+function applyPalette(name) {
+  const p = palettes[name];
+  if (!p) return;
+  const r = document.documentElement.style;
+  r.setProperty('--bg', p.bg);
+  r.setProperty('--bg2', p.bg2);
+  r.setProperty('--bg3', p.bg3);
+  r.setProperty('--border', p.border);
+  r.setProperty('--border2', p.border2);
+  r.setProperty('--text', p.text);
+  r.setProperty('--muted', p.muted);
+  r.setProperty('--accent', p.accent);
+  r.setProperty('--accent2', p.accent2);
+  r.setProperty('--accent3', p.accent3);
+  r.setProperty('--red', p.red);
+  document.querySelectorAll('.pb-swatch').forEach(s => s.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+
+function toggleDarkLight() {
+  darkMode = !darkMode;
+  applyPalette(darkMode ? 'charcoal-gold' : 'ivory-orange');
+  document.querySelectorAll('.pb-swatch').forEach(s => s.classList.remove('active'));
+}
 </script>
 </body>
 </html>
